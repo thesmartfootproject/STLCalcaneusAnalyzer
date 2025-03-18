@@ -1,8 +1,7 @@
-import { pgTable, text, serial, integer, boolean, real, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, jsonb, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// User schema (keeping the existing one)
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
@@ -14,76 +13,67 @@ export const insertUserSchema = createInsertSchema(users).pick({
   password: true,
 });
 
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
-
-// New schemas for the STL processor application
-export const processingJobs = pgTable("processing_jobs", {
+export const stlFiles = pgTable("stl_files", {
   id: serial("id").primaryKey(),
-  createdAt: text("created_at").notNull(),
-  status: text("status").notNull(), // "pending", "processing", "completed", "failed"
-  medialFilePath: text("medial_file_path").notNull(),
-  lateralFilePath: text("lateral_file_path").notNull(),
-  screwsDirectoryPath: text("screws_directory_path").notNull(),
-  tolerance: real("tolerance").notNull(),
-  side: text("side").notNull(),
-  meanXMedial: real("mean_x_medial").notNull(),
-  meanXLateral: real("mean_x_lateral").notNull(),
+  sessionId: text("session_id").notNull(),
+  fileType: text("file_type").notNull(), // 'medial', 'lateral', 'screw'
+  fileName: text("file_name").notNull(),
+  filePath: text("file_path").notNull(),
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+});
+
+export const insertStlFileSchema = createInsertSchema(stlFiles).omit({
+  id: true,
+  uploadedAt: true,
+});
+
+export const processingResults = pgTable("processing_results", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull(),
+  side: text("side").notNull(), // 'Left Calcaneus' or 'Right Calcaneus'
+  meanXMedial: text("mean_x_medial").notNull(),
+  meanXLateral: text("mean_x_lateral").notNull(),
+  results: jsonb("results").notNull(),
+  processedAt: timestamp("processed_at").defaultNow(),
+  tolerance: text("tolerance").default("0.5"),
   logs: text("logs").notNull(),
 });
 
-export const insertProcessingJobSchema = createInsertSchema(processingJobs).omit({
+export const insertProcessingResultSchema = createInsertSchema(processingResults).omit({
   id: true,
+  processedAt: true,
 });
 
-export type InsertProcessingJob = z.infer<typeof insertProcessingJobSchema>;
-export type ProcessingJob = typeof processingJobs.$inferSelect;
-
-export const screwResults = pgTable("screw_results", {
+export const processingSettings = pgTable("processing_settings", {
   id: serial("id").primaryKey(),
-  jobId: integer("job_id").notNull(),
-  screwName: text("screw_name").notNull(),
-  breachDetected: boolean("breach_detected").notNull(),
-  breachInfo: text("breach_info"),
-  minDistMedial: real("min_dist_medial").notNull(),
-  minDistLateral: real("min_dist_lateral").notNull(),
-  breachPoints: jsonb("breach_points")
+  userId: integer("user_id").references(() => users.id),
+  tolerance: text("tolerance").default("0.5"),
+  colorScheme: text("color_scheme").default("standard"),
+  showAxes: boolean("show_axes").default(true),
+  showMeasurements: boolean("show_measurements").default(true),
+  highlightBreaches: boolean("highlight_breaches").default(true),
+  enableTransparency: boolean("enable_transparency").default(false),
 });
 
-export const insertScrewResultSchema = createInsertSchema(screwResults).omit({
+export const insertSettingsSchema = createInsertSchema(processingSettings).omit({
   id: true,
 });
 
-export type InsertScrewResult = z.infer<typeof insertScrewResultSchema>;
-export type ScrewResult = typeof screwResults.$inferSelect;
-
-// Client-side schemas for form validation
-export const settingsSchema = z.object({
-  tolerance: z.number().min(0.1).max(5.0).default(0.5),
-  colorMode: z.enum(["standard", "distance", "monochrome", "xray"]).default("standard"),
-  units: z.enum(["mm", "cm", "in"]).default("mm"),
-  autoRotate: z.boolean().default(false),
-  highlightBreachPoints: z.boolean().default(true),
+// Result object structure
+export const screwResultSchema = z.object({
+  fileName: z.string(),
+  distanceToMedial: z.number(),
+  distanceToLateral: z.number(),
+  breachStatus: z.enum(['No breach', 'Medial breach', 'Lateral breach', 'Both breach']),
+  breachPoints: z.array(z.array(z.number())).optional(),
 });
 
-export type Settings = z.infer<typeof settingsSchema>;
-
-// DTOs for API responses
-export const processingResultSchema = z.object({
-  side: z.string(),
-  meanXMedial: z.number(),
-  meanXLateral: z.number(),
-  screwResults: z.array(
-    z.object({
-      screwName: z.string(),
-      breachDetected: z.boolean(),
-      breachInfo: z.string().optional(),
-      minDistMedial: z.number(),
-      minDistLateral: z.number(),
-      breachPoints: z.any().optional(),
-    })
-  ),
-  logs: z.string(),
-});
-
-export type ProcessingResult = z.infer<typeof processingResultSchema>;
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export type StlFile = typeof stlFiles.$inferSelect;
+export type InsertStlFile = z.infer<typeof insertStlFileSchema>;
+export type ProcessingResult = typeof processingResults.$inferSelect;
+export type InsertProcessingResult = z.infer<typeof insertProcessingResultSchema>;
+export type ProcessingSetting = typeof processingSettings.$inferSelect;
+export type InsertProcessingSetting = z.infer<typeof insertSettingsSchema>;
+export type ScrewResult = z.infer<typeof screwResultSchema>;
