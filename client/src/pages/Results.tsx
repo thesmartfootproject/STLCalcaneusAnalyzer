@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrewResult } from '@shared/schema';
 import { getProcessingResults } from '@/lib/stlProcessor';
-import { SideDetection } from '@/components/SideDetection';
+import SideDetection from '@/components/SideDetection';
 import ResultsTable from '@/components/ResultsTable';
 
 interface ResultsProps {
