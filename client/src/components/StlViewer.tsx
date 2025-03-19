@@ -100,17 +100,17 @@ const StlViewer = ({
     controls.maxDistance = 100;
     controlsRef.current = controls;
 
-    // Lighting setup
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
+    // Add lighting to scene
+    const light = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(light);
 
-    // Key light
-    const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    keyLight.position.set(-10, 10, 10);
-    keyLight.castShadow = true;
-    keyLight.shadow.mapSize.width = 1024;
-    keyLight.shadow.mapSize.height = 1024;
-    scene.add(keyLight);
+    // Add directional light
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(-10, 10, 10);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = 1024;
+    dirLight.shadow.mapSize.height = 1024;
+    scene.add(dirLight);
     
     // Fill light
     const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
