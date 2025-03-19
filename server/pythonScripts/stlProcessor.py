@@ -17,12 +17,25 @@ def compute_distances(points_a, points_b):
     return min_dist, min_idx
 
 # Batch process screws
+def normalize_mesh(mesh):
+    # Get the bounding box dimensions
+    extents = mesh.bounds[1] - mesh.bounds[0]
+    scale = 1.0 / np.max(extents)
+    
+    # Center and scale the mesh
+    mesh.vertices = (mesh.vertices - mesh.bounds[0]) * scale
+    return mesh
+
 def process_screws_batch(medial_file, lateral_file, screws_dir, tolerance=0.5):
     logs = []
     logs.append("=== Processing Started ===\n")
     
     medial = load_stl(medial_file)
     lateral = load_stl(lateral_file)
+    
+    # Normalize medial and lateral surfaces
+    medial = normalize_mesh(medial)
+    lateral = normalize_mesh(lateral)
 
     medial_points = np.array(medial.vertices)
     lateral_points = np.array(lateral.vertices)
@@ -51,6 +64,8 @@ def process_screws_batch(medial_file, lateral_file, screws_dir, tolerance=0.5):
         
         screw_path = os.path.join(screws_path, screw_file) if os.path.isdir(screws_dir) else screws_dir
         screw = load_stl(screw_path)
+        # Normalize screw to match the scale of surfaces
+        screw = normalize_mesh(screw)
         screw_points = np.array(screw.vertices)
 
         min_dist_medial, medial_idx = compute_distances(screw_points, medial_points)
