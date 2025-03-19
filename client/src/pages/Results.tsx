@@ -57,7 +57,7 @@ const Results = ({ sessionId }: ResultsProps) => {
     );
   }
   
-  if (error || !processingData) {
+  if (error || !processingData || !results.length) {
     return (
       <section id="results" className="mb-8">
         <Card>
