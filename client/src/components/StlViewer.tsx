@@ -100,11 +100,12 @@ const StlViewer = ({
     controls.maxDistance = 100;
     controlsRef.current = controls;
 
-    // Better lighting setup
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    // Lighting setup
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    keyLight.position.set(1, 1, 1);
     scene.add(ambientLight);
-
-    // Key light
+    scene.add(keyLight);
     const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
     keyLight.position.set(-10, 10, 10);
     keyLight.castShadow = true;
