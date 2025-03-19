@@ -33,7 +33,7 @@ const StlViewer = ({
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const controlsRef = useRef<OrbitControls | null>(null);
   const objectsRef = useRef<{ [key: string]: THREE.Mesh }>({});
-  const breachPointsRef = useRef<THREE.Points | null>(null);
+  const breachPointsRef = useRef<THREE.Group | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [hasModels, setHasModels] = useState(false);
@@ -341,27 +341,57 @@ const StlViewer = ({
           // Compute normals for better lighting
           geometry.computeVertexNormals();
           
-          // Create high-quality material with enhanced shading
-          const material = new THREE.MeshStandardMaterial({
-            color: color,
-            metalness: 0.1,
-            roughness: 0.5,
-            flatShading: false,
-            emissive: new THREE.Color(color).multiplyScalar(0.05), // Subtle glow
-            side: THREE.DoubleSide // Show both sides of each face
-          });
+          // Create material based on the type of model
+          let material;
           
-          // For medial and lateral surfaces, we can use more advanced materials
-          if (key === "medial" || key === "lateral") {
-            material.envMapIntensity = 0.8;
-            // Note: clearcoat would be great here, but we'd need to use MeshPhysicalMaterial instead
-          }
-          
-          // For screws, we want a more metallic appearance
-          if (key === "screw") {
-            material.metalness = 0.8;
-            material.roughness = 0.2;
-            material.envMapIntensity = 1.2;
+          if (key === "medial") {
+            // Medial surface - red with medium shininess
+            material = new THREE.MeshPhysicalMaterial({
+              color: color,
+              metalness: 0.1,
+              roughness: 0.4,
+              flatShading: false,
+              emissive: new THREE.Color(color).multiplyScalar(0.05), // Subtle glow
+              side: THREE.DoubleSide, // Show both sides of each face
+              reflectivity: 0.5,
+              envMapIntensity: 0.8,
+              clearcoat: 0.2,   // Physical material allows clearcoat
+              clearcoatRoughness: 0.3
+            });
+          } else if (key === "lateral") {
+            // Lateral surface - blue with medium shininess
+            material = new THREE.MeshPhysicalMaterial({
+              color: color,
+              metalness: 0.1,
+              roughness: 0.4,
+              flatShading: false,
+              emissive: new THREE.Color(color).multiplyScalar(0.05), // Subtle glow
+              side: THREE.DoubleSide, // Show both sides of each face
+              reflectivity: 0.5,
+              envMapIntensity: 0.8,
+              clearcoat: 0.2,   // Physical material allows clearcoat
+              clearcoatRoughness: 0.3
+            });
+          } else if (key === "screw") {
+            // Screw - metallic appearance
+            material = new THREE.MeshStandardMaterial({
+              color: color,
+              metalness: 0.9,
+              roughness: 0.2,
+              flatShading: false,
+              emissive: new THREE.Color(color).multiplyScalar(0.03), // Subtle glow
+              side: THREE.DoubleSide, // Show both sides of each face
+              envMapIntensity: 1.5
+            });
+          } else {
+            // Default material for any other type
+            material = new THREE.MeshStandardMaterial({
+              color: color,
+              metalness: 0.3,
+              roughness: 0.5,
+              flatShading: false,
+              side: THREE.DoubleSide // Show both sides of each face
+            });
           }
           
           const mesh = new THREE.Mesh(geometry, material);
@@ -486,14 +516,15 @@ const StlViewer = ({
       new THREE.Float32BufferAttribute(colors, 3)
     );
     
-    // Create better point material
+    // Create better point material with glow effect
     const pointsMaterial = new THREE.PointsMaterial({
-      color: 0xff0000, // Red base color
-      size: 0.8, // Larger points
-      alphaTest: 0.5,
+      color: 0xff3333, // Brighter red for better visibility
+      size: 1.0, // Larger points for visibility
+      alphaTest: 0.2,
       transparent: true,
       vertexColors: true, // Use vertex colors
       sizeAttenuation: true, // Size changes with distance to camera
+      blending: THREE.AdditiveBlending, // Add glow effect
     });
     
     // If sprite loaded successfully, use it
@@ -501,7 +532,28 @@ const StlViewer = ({
       pointsMaterial.map = sprite;
     }
     
+    // Create a secondary glow effect for breach points
+    const glowMaterial = new THREE.PointsMaterial({
+      color: 0xff0000,
+      size: 3.0, // Larger for glow effect
+      transparent: true,
+      opacity: 0.3,
+      sizeAttenuation: true,
+      blending: THREE.AdditiveBlending
+    });
+    
+    if (sprite) {
+      glowMaterial.map = sprite;
+    }
+    
+    // Create two points systems - one for the core points and one for the glow effect
     const points = new THREE.Points(pointsGeometry, pointsMaterial);
+    const glowPoints = new THREE.Points(pointsGeometry.clone(), glowMaterial);
+    
+    // Group both point systems together
+    const pointsGroup = new THREE.Group();
+    pointsGroup.add(points);
+    pointsGroup.add(glowPoints);
     
     // Add a pulsing animation effect to highlight breach points
     const pulse = () => {
@@ -510,13 +562,24 @@ const StlViewer = ({
       const time = Date.now() * 0.001; // Time in seconds
       const scale = 1.0 + 0.3 * Math.sin(time * 2.0); // Scale between 0.7 and 1.3
       
-      (breachPointsRef.current.material as THREE.PointsMaterial).size = 0.8 * scale;
+      // Get the children of the group
+      const corePoints = breachPointsRef.current.children[0];
+      const glowHalo = breachPointsRef.current.children[1];
+      
+      if (corePoints && corePoints.material) {
+        (corePoints.material as THREE.PointsMaterial).size = 1.0 * scale;
+      }
+      
+      if (glowHalo && glowHalo.material) {
+        (glowHalo.material as THREE.PointsMaterial).size = 3.0 * scale;
+        (glowHalo.material as THREE.PointsMaterial).opacity = 0.3 * (0.7 + 0.3 * Math.sin(time * 3.0));
+      }
       
       requestAnimationFrame(pulse);
     };
     
-    sceneRef.current.add(points);
-    breachPointsRef.current = points;
+    sceneRef.current.add(pointsGroup);
+    breachPointsRef.current = pointsGroup;
     
     // Start the pulsing animation
     pulse();
@@ -530,8 +593,14 @@ const StlViewer = ({
       if (mesh && mesh.material) {
         if (mesh.material instanceof THREE.MeshStandardMaterial ||
             mesh.material instanceof THREE.MeshPhongMaterial ||
-            mesh.material instanceof THREE.MeshBasicMaterial) {
+            mesh.material instanceof THREE.MeshBasicMaterial ||
+            mesh.material instanceof THREE.MeshPhysicalMaterial) {
           mesh.material.wireframe = wireframeMode;
+          
+          // If transparency is enabled, adjust material settings for better wireframe visualization
+          if (wireframeMode && mesh.material.transparent) {
+            mesh.material.opacity = 0.8;
+          }
         }
       }
     });
@@ -637,7 +706,7 @@ const StlViewer = ({
       
       <div 
         ref={containerRef} 
-        className="h-96 bg-gray-100 rounded-lg flex items-center justify-center" 
+        className="h-[500px] bg-gradient-to-b from-gray-50 to-gray-100 rounded-lg flex items-center justify-center shadow-inner border border-gray-200" 
       >
         {loading ? (
           <div className="text-center p-8">
