@@ -27,7 +27,7 @@ const ResultsTable = ({ results, sessionId, onViewScrew }: ResultsTableProps) =>
       setDownloading(true);
       console.log("Downloading CSV for session:", sessionId);
       const response = await fetch(`/api/export/${sessionId}`);
-      
+
       if (!response.ok) {
         console.error("Export API response not OK:", response.status, response.statusText);
         const errorText = await response.text();
@@ -38,20 +38,20 @@ const ResultsTable = ({ results, sessionId, onViewScrew }: ResultsTableProps) =>
           throw new Error(`Failed to export results: ${errorText || response.statusText}`);
         }
       }
-      
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
       a.download = `stl-analysis-${sessionId.slice(0, 8)}.csv`;
-      
+
       document.body.appendChild(a);
       a.click();
-      
+
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      
+
       toast({
         title: "Success",
         description: "Results exported successfully",
@@ -117,7 +117,7 @@ const ResultsTable = ({ results, sessionId, onViewScrew }: ResultsTableProps) =>
           <i className="fas fa-download mr-1.5"></i> Download CSV
         </Button>
       </div>
-      
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -152,8 +152,8 @@ const ResultsTable = ({ results, sessionId, onViewScrew }: ResultsTableProps) =>
                     {getBreachStatusBadge(screw.breachStatus)}
                   </TableCell>
                   <TableCell>
-                    <Button 
-                      variant="link" 
+                    <Button
+                      variant="link"
                       className="text-primary-600 hover:text-primary-900 p-0"
                       onClick={() => onViewScrew(screw.fileName)}
                     >

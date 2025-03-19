@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import React from 'react';
 
 interface SideDetectionProps {
   meanXMedial: string;
@@ -6,7 +6,7 @@ interface SideDetectionProps {
   side: string;
 }
 
-const SideDetection = ({ meanXMedial, meanXLateral, side }: SideDetectionProps) => {
+const SideDetection: React.FC<SideDetectionProps> = ({ meanXMedial, meanXLateral, side }) => {
   return (
     <div className="bg-gray-50 p-4 rounded-lg mb-6">
       <h4 className="text-md font-medium text-gray-700 mb-3">Side Detection</h4>
