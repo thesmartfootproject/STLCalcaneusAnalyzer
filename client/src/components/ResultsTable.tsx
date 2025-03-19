@@ -25,10 +25,18 @@ const ResultsTable = ({ results, sessionId, onViewScrew }: ResultsTableProps) =>
 
     try {
       setDownloading(true);
+      console.log("Downloading CSV for session:", sessionId);
       const response = await fetch(`/api/export/${sessionId}`);
       
       if (!response.ok) {
-        throw new Error('Failed to export results');
+        console.error("Export API response not OK:", response.status, response.statusText);
+        const errorText = await response.text();
+        try {
+          const errorJson = JSON.parse(errorText);
+          throw new Error(errorJson.message || 'Failed to export results');
+        } catch (e) {
+          throw new Error(`Failed to export results: ${errorText || response.statusText}`);
+        }
       }
       
       const blob = await response.blob();
@@ -49,6 +57,7 @@ const ResultsTable = ({ results, sessionId, onViewScrew }: ResultsTableProps) =>
         description: "Results exported successfully",
       });
     } catch (error) {
+      console.error("CSV download error:", error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to export results",
