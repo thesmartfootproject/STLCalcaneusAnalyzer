@@ -102,13 +102,13 @@ const StlViewer = ({
 
     // Lighting setup
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    keyLight.position.set(1, 1, 1);
     scene.add(ambientLight);
-    scene.add(keyLight);
+
+    // Key light
     const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
     keyLight.position.set(-10, 10, 10);
     keyLight.castShadow = true;
+    scene.add(keyLight);
     keyLight.shadow.mapSize.width = 1024;
     keyLight.shadow.mapSize.height = 1024;
     scene.add(keyLight);
