@@ -1,4 +1,6 @@
+
 import React from 'react';
+import { Card, CardContent } from "@/components/ui/card";
 
 interface SideDetectionProps {
   meanXMedial: string;
@@ -10,20 +12,19 @@ const SideDetection: React.FC<SideDetectionProps> = ({ meanXMedial, meanXLateral
   return (
     <div className="bg-gray-50 p-4 rounded-lg mb-6">
       <h4 className="text-md font-medium text-gray-700 mb-3">Side Detection</h4>
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <p className="text-sm text-gray-600">Mean X (Medial)</p>
-          <p className="text-lg font-semibold">{meanXMedial} mm</p>
+          <p className="text-sm text-gray-500">Mean X (Medial)</p>
+          <p className="text-lg font-medium">{parseFloat(meanXMedial).toFixed(2)} mm</p>
         </div>
         <div>
-          <p className="text-sm text-gray-600">Mean X (Lateral)</p>
-          <p className="text-lg font-semibold">{meanXLateral} mm</p>
+          <p className="text-sm text-gray-500">Mean X (Lateral)</p>
+          <p className="text-lg font-medium">{parseFloat(meanXLateral).toFixed(2)} mm</p>
         </div>
-      </div>
-      <div className="bg-primary-100 p-3 rounded-md">
-        <p className="text-primary-800 font-medium">
-          Result: This is a <span className="font-bold">{side}</span>
-        </p>
+        <div>
+          <p className="text-sm text-gray-500">Detected Side</p>
+          <p className="text-lg font-medium">{side}</p>
+        </div>
       </div>
     </div>
   );
