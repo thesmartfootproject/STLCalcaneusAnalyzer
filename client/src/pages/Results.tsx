@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
