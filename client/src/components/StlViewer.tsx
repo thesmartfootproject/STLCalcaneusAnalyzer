@@ -627,8 +627,13 @@ const StlViewer = ({
   const resetView = () => {
     if (!cameraRef.current || !controlsRef.current) return;
     
-    cameraRef.current.position.set(0, 10, 20);
+    cameraRef.current.position.set(50, 50, 100);
     cameraRef.current.lookAt(0, 0, 0);
+    controlsRef.current.enableDamping = true;
+    controlsRef.current.dampingFactor = 0.05;
+    controlsRef.current.screenSpacePanning = true;
+    controlsRef.current.minDistance = 50;
+    controlsRef.current.maxDistance = 300;
     controlsRef.current.reset();
     
     toast({
@@ -724,7 +729,7 @@ const StlViewer = ({
       
       <div 
         ref={containerRef} 
-        className="h-[500px] bg-gradient-to-b from-gray-50 to-gray-100 rounded-lg flex items-center justify-center shadow-inner border border-gray-200" 
+        className="h-[600px] bg-gradient-to-b from-gray-50 to-gray-100 rounded-lg flex items-center justify-center shadow-inner border border-gray-200 relative overflow-hidden" 
       >
         {loading ? (
           <div className="text-center p-8">
