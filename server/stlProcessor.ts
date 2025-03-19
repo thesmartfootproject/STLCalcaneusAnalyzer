@@ -169,7 +169,8 @@ if __name__ == "__main__":
 
   try {
     // Execute Python script
-    const command = `python3 "${tempScriptPath}" "${medialFilePath}" "${lateralFilePath}" "${screwsDir}" ${tolerance}`;
+    const pythonPath = '/home/runner/workspace/.pythonlibs/bin/python3';
+    const command = `${pythonPath} "${tempScriptPath}" "${medialFilePath}" "${lateralFilePath}" "${screwsDir}" ${tolerance}`;
     const { stdout, stderr } = await execAsync(command);
     
     if (stderr) {
