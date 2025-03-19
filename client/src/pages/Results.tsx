@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ScrewResult } from '@shared/schema';
 import { getProcessingResults } from '@/lib/stlProcessor';
 import { SideDetection } from '@/components/SideDetection';
-import { ResultsTable } from '@/components/ResultsTable';
+import ResultsTable from '@/components/ResultsTable';
 
 interface ResultsProps {
   sessionId: string;
