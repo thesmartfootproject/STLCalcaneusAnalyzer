@@ -365,7 +365,11 @@ const StlViewer = ({
           <Button 
             variant={showMedial && showLateral && showScrews ? "default" : "outline"}
             size="sm"
-            onClick={() => {}}
+            onClick={() => {
+              setShowMedial(true);
+              setShowLateral(true);
+              setShowScrews(true);
+            }}
             className="text-sm"
           >
             <i className="fas fa-eye mr-1.5"></i> All Models
@@ -373,7 +377,7 @@ const StlViewer = ({
           <Button 
             variant={showMedial ? "default" : "outline"} 
             size="sm"
-            onClick={() => {}}
+            onClick={() => setShowMedial(!showMedial)}
             className="text-sm"
           >
             <i className="fas fa-square mr-1.5"></i> Medial Surface
@@ -381,7 +385,7 @@ const StlViewer = ({
           <Button 
             variant={showLateral ? "default" : "outline"} 
             size="sm"
-            onClick={() => {}}
+            onClick={() => setShowLateral(!showLateral)}
             className="text-sm"
           >
             <i className="fas fa-square mr-1.5"></i> Lateral Surface
@@ -389,7 +393,7 @@ const StlViewer = ({
           <Button 
             variant={showScrews ? "default" : "outline"} 
             size="sm"
-            onClick={() => {}}
+            onClick={() => setShowScrews(!showScrews)}
             className="text-sm"
           >
             <i className="fas fa-wrench mr-1.5"></i> Screws
@@ -397,7 +401,7 @@ const StlViewer = ({
           <Button 
             variant={showBreaches ? "default" : "outline"} 
             size="sm"
-            onClick={() => {}}
+            onClick={() => setShowBreaches(!showBreaches)}
             className="text-sm bg-red-100 text-red-700 hover:bg-red-200 hover:text-red-800"
           >
             <i className="fas fa-exclamation-triangle mr-1.5"></i> Breach Points
