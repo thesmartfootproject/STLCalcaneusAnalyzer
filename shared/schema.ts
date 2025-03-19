@@ -1,73 +1,78 @@
-import { pgTable, text, serial, integer, boolean, jsonb, timestamp } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
+import { pgTable, serial, text, timestamp, boolean, integer, json } from 'drizzle-orm/pg-core';
+import { createInsertSchema } from 'drizzle-zod';
+import { z } from 'zod';
 
+// User model
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
-  password: text("password").notNull(),
+  password: text("password").notNull()
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
-  password: true,
+  password: true
 });
 
+// STL files model
 export const stlFiles = pgTable("stl_files", {
   id: serial("id").primaryKey(),
   sessionId: text("session_id").notNull(),
-  fileType: text("file_type").notNull(), // 'medial', 'lateral', 'screw'
   fileName: text("file_name").notNull(),
   filePath: text("file_path").notNull(),
-  uploadedAt: timestamp("uploaded_at").defaultNow(),
+  fileType: text("file_type").notNull(), // 'medial', 'lateral', 'screws'
+  uploadedAt: timestamp("uploaded_at").defaultNow()
 });
 
 export const insertStlFileSchema = createInsertSchema(stlFiles).omit({
   id: true,
-  uploadedAt: true,
+  uploadedAt: true
 });
 
+// Processing results model
 export const processingResults = pgTable("processing_results", {
   id: serial("id").primaryKey(),
-  sessionId: text("session_id").notNull(),
-  side: text("side").notNull(), // 'Left Calcaneus' or 'Right Calcaneus'
+  sessionId: text("session_id").notNull().unique(),
+  side: text("side").notNull(),
   meanXMedial: text("mean_x_medial").notNull(),
   meanXLateral: text("mean_x_lateral").notNull(),
-  results: jsonb("results").notNull(),
-  processedAt: timestamp("processed_at").defaultNow(),
-  tolerance: text("tolerance").default("0.5"),
+  results: json("results").notNull().$type<ScrewResult[]>(),
+  tolerance: text("tolerance").notNull(),
   logs: text("logs").notNull(),
+  processedAt: timestamp("processed_at").defaultNow()
 });
 
 export const insertProcessingResultSchema = createInsertSchema(processingResults).omit({
   id: true,
-  processedAt: true,
+  processedAt: true
 });
 
+// Processing settings model
 export const processingSettings = pgTable("processing_settings", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
-  tolerance: text("tolerance").default("0.5"),
-  colorScheme: text("color_scheme").default("standard"),
-  showAxes: boolean("show_axes").default(true),
-  showMeasurements: boolean("show_measurements").default(true),
-  highlightBreaches: boolean("highlight_breaches").default(true),
-  enableTransparency: boolean("enable_transparency").default(false),
+  userId: integer("user_id"),
+  tolerance: text("tolerance").notNull().default("0.5"),
+  colorScheme: text("color_scheme").notNull().default("standard"),
+  showAxes: boolean("show_axes").notNull().default(true),
+  showMeasurements: boolean("show_measurements").notNull().default(true),
+  highlightBreaches: boolean("highlight_breaches").notNull().default(true),
+  enableTransparency: boolean("enable_transparency").notNull().default(false)
 });
 
 export const insertSettingsSchema = createInsertSchema(processingSettings).omit({
-  id: true,
+  id: true
 });
 
-// Result object structure
+// Screw result schema for processing
 export const screwResultSchema = z.object({
   fileName: z.string(),
   distanceToMedial: z.number(),
   distanceToLateral: z.number(),
-  breachStatus: z.enum(['No breach', 'Medial breach', 'Lateral breach', 'Both breach']),
-  breachPoints: z.array(z.array(z.number())).optional(),
+  breachStatus: z.enum(["No breach", "Medial breach", "Lateral breach", "Both breach"]),
+  breachPoints: z.array(z.array(z.number())).nullable()
 });
 
+// Type definitions
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type StlFile = typeof stlFiles.$inferSelect;
