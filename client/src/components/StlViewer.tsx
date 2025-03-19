@@ -49,17 +49,7 @@ const StlViewer = ({
 
     // Scene setup
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf8f9fa);
-    
-    // Add ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
-    
-    // Add directional light
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(0, 20, 10);
-    scene.add(directionalLight);
-    
+    scene.background = new THREE.Color(0xf8f9fa); // Lighter, more modern background
     sceneRef.current = scene;
 
     // Camera setup
@@ -455,10 +445,10 @@ const StlViewer = ({
               // Position camera to show all objects
               const maxDim = Math.max(size.x, size.y, size.z);
               const fov = cameraRef.current.fov * (Math.PI / 180);
-              let cameraDistance = maxDim / Math.tan(fov / 2);
+              let cameraDistance = maxDim / (2 * Math.tan(fov / 2));
               
               // Add extra padding
-              cameraDistance *= 2.0;
+              cameraDistance *= 1.5;
               
               // Set camera position
               cameraRef.current.position.copy(center);
