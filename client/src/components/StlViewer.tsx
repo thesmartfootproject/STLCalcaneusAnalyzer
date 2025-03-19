@@ -49,17 +49,7 @@ const StlViewer = ({
 
     // Scene setup
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf8f9fa);
-    
-    // Add ambient light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
-    
-    // Add directional light
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(0, 20, 10);
-    scene.add(directionalLight);
-    
+    scene.background = new THREE.Color(0xf8f9fa); // Lighter, more modern background
     sceneRef.current = scene;
 
     // Camera setup
@@ -100,17 +90,17 @@ const StlViewer = ({
     controls.maxDistance = 100;
     controlsRef.current = controls;
 
-    // Add lighting to scene
-    const light = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(light);
+    // Better lighting setup
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambientLight);
 
-    // Add directional light
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    dirLight.position.set(-10, 10, 10);
-    dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 1024;
-    dirLight.shadow.mapSize.height = 1024;
-    scene.add(dirLight);
+    // Key light
+    const keyLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    keyLight.position.set(-10, 10, 10);
+    keyLight.castShadow = true;
+    keyLight.shadow.mapSize.width = 1024;
+    keyLight.shadow.mapSize.height = 1024;
+    scene.add(keyLight);
     
     // Fill light
     const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
@@ -455,10 +445,10 @@ const StlViewer = ({
               // Position camera to show all objects
               const maxDim = Math.max(size.x, size.y, size.z);
               const fov = cameraRef.current.fov * (Math.PI / 180);
-              let cameraDistance = maxDim / Math.tan(fov / 2);
+              let cameraDistance = maxDim / (2 * Math.tan(fov / 2));
               
               // Add extra padding
-              cameraDistance *= 2.0;
+              cameraDistance *= 1.5;
               
               // Set camera position
               cameraRef.current.position.copy(center);

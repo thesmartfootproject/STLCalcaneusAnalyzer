@@ -1,14 +1,13 @@
-
-import { useEffect, useState } from 'react';
-import { useLocation } from 'wouter';
-import { useQuery } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ScrewResult } from '@shared/schema';
-import { getProcessingResults } from '@/lib/stlProcessor';
-import SideDetection from '@/components/SideDetection';
-import ResultsTable from '@/components/ResultsTable';
+import { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
+import SideDetection from "@/components/SideDetection";
+import ResultsTable from "@/components/ResultsTable";
+import { getProcessingResults } from "@/lib/stlProcessor";
+import { ScrewResult } from "@shared/schema";
 
 interface ResultsProps {
   sessionId: string;
@@ -19,6 +18,7 @@ const Results = ({ sessionId }: ResultsProps) => {
   const [_, setLocation] = useLocation();
   const [results, setResults] = useState<ScrewResult[]>([]);
   
+  // Fetch processing results
   const { data: processingData, isLoading, error } = useQuery({
     queryKey: [`/api/results/${sessionId}`],
     enabled: !!sessionId,
@@ -30,24 +30,17 @@ const Results = ({ sessionId }: ResultsProps) => {
   
   useEffect(() => {
     if (processingData) {
-      try {
-        const parsedResults = typeof processingData.results === 'string' 
-          ? JSON.parse(processingData.results) 
-          : processingData.results;
-        
-        setResults(parsedResults);
-      } catch (err) {
-        console.error('Error parsing results:', err);
-        toast({
-          title: "Error",
-          description: "Failed to parse results data",
-          variant: "destructive"
-        });
-      }
+      // Parse results if they're a string
+      const parsedResults = typeof processingData.results === 'string' 
+        ? JSON.parse(processingData.results) 
+        : processingData.results;
+      
+      setResults(parsedResults);
     }
-  }, [processingData, toast]);
+  }, [processingData]);
   
   const handleViewScrew = (screwFile: string) => {
+    // Navigate to visualization page with the selected screw
     setLocation(`/visualization?screw=${encodeURIComponent(screwFile)}`);
   };
   
@@ -64,7 +57,7 @@ const Results = ({ sessionId }: ResultsProps) => {
     );
   }
   
-  if (error || !processingData || !results.length) {
+  if (error || !processingData) {
     return (
       <section id="results" className="mb-8">
         <Card>
