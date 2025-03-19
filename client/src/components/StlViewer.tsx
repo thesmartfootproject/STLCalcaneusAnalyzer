@@ -21,10 +21,10 @@ const StlViewer = ({
   sessionId,
   selectedScrewFile,
   results,
-  showMedial = true,
-  showLateral = true,
-  showScrews = true,
-  showBreaches = true,
+  showMedial: initialShowMedial = true,
+  showLateral: initialShowLateral = true,
+  showScrews: initialShowScrews = true,
+  showBreaches: initialShowBreaches = true,
   enableTransparency = false,
 }: StlViewerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -37,6 +37,10 @@ const StlViewer = ({
 
   const [loading, setLoading] = useState(false);
   const [hasModels, setHasModels] = useState(false);
+  const [showMedial, setShowMedial] = useState(initialShowMedial);
+  const [showLateral, setShowLateral] = useState(initialShowLateral);
+  const [showScrews, setShowScrews] = useState(initialShowScrews);
+  const [showBreaches, setShowBreaches] = useState(initialShowBreaches);
 
   // Initialize Three.js scene
   useEffect(() => {
@@ -134,6 +138,9 @@ const StlViewer = ({
     const loadModels = async () => {
       try {
         setLoading(true);
+        console.log("StlViewer: Loading models for session", sessionId);
+        console.log("StlViewer: Selected screw file:", selectedScrewFile);
+        console.log("StlViewer: Results:", results);
         
         // Get files for this session
         const response = await fetch(`/api/files/${sessionId}`);
@@ -143,8 +150,10 @@ const StlViewer = ({
         
         const data = await response.json();
         const files = data.files;
+        console.log("StlViewer: Files from API:", files);
         
         if (!files || files.length === 0) {
+          console.log("StlViewer: No files found for session");
           return;
         }
         
@@ -153,7 +162,12 @@ const StlViewer = ({
         const lateralFile = files.find((file: any) => file.fileType === "lateral");
         const screwsFile = files.find((file: any) => file.fileType === "screws");
         
+        console.log("StlViewer: Medial file:", medialFile);
+        console.log("StlViewer: Lateral file:", lateralFile);
+        console.log("StlViewer: Screws file:", screwsFile);
+        
         if (!medialFile || !lateralFile || !screwsFile) {
+          console.log("StlViewer: Missing required files");
           return;
         }
         
@@ -172,6 +186,7 @@ const StlViewer = ({
         objectsRef.current = {};
         
         // Load medial surface
+        console.log("StlViewer: Loading medial surface:", `/uploads/${sessionId}/${medialFile.fileName}`);
         await loadSTL(
           `/uploads/${sessionId}/${medialFile.fileName}`,
           0xff6b6b, // Red
@@ -179,6 +194,7 @@ const StlViewer = ({
         );
         
         // Load lateral surface
+        console.log("StlViewer: Loading lateral surface:", `/uploads/${sessionId}/${lateralFile.fileName}`);
         await loadSTL(
           `/uploads/${sessionId}/${lateralFile.fileName}`,
           0x4d96ff, // Blue
@@ -188,6 +204,7 @@ const StlViewer = ({
         // Load selected screw or default to first screw
         if (results.length > 0) {
           const screwFileName = selectedScrewFile || results[0].fileName;
+          console.log("StlViewer: Loading screw:", `/uploads/${sessionId}/extracted_screws/${screwFileName}`);
           await loadSTL(
             `/uploads/${sessionId}/extracted_screws/${screwFileName}`,
             0xd580ff, // Purple
@@ -196,6 +213,8 @@ const StlViewer = ({
           
           // Add breach points if any
           addBreachPoints();
+        } else {
+          console.log("StlViewer: No screw results to display");
         }
         
         setHasModels(true);
