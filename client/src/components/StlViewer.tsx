@@ -562,17 +562,35 @@ const StlViewer = ({
       const time = Date.now() * 0.001; // Time in seconds
       const scale = 1.0 + 0.3 * Math.sin(time * 2.0); // Scale between 0.7 and 1.3
       
-      // Get the children of the group
-      const corePoints = breachPointsRef.current.children[0];
-      const glowHalo = breachPointsRef.current.children[1];
-      
-      if (corePoints && corePoints.material) {
-        (corePoints.material as THREE.PointsMaterial).size = 1.0 * scale;
-      }
-      
-      if (glowHalo && glowHalo.material) {
-        (glowHalo.material as THREE.PointsMaterial).size = 3.0 * scale;
-        (glowHalo.material as THREE.PointsMaterial).opacity = 0.3 * (0.7 + 0.3 * Math.sin(time * 3.0));
+      try {
+        // Access points group children
+        if (breachPointsRef.current.children.length >= 2) {
+          const corePoints = breachPointsRef.current.children[0];
+          const glowHalo = breachPointsRef.current.children[1];
+          
+          // Update point size for core points
+          if (corePoints.isPoints) {
+            const pointsMaterial = (corePoints as any).material;
+            if (pointsMaterial && typeof pointsMaterial.size !== 'undefined') {
+              pointsMaterial.size = 1.0 * scale;
+            }
+          }
+          
+          // Update point size and opacity for glow effect
+          if (glowHalo.isPoints) {
+            const glowMaterial = (glowHalo as any).material;
+            if (glowMaterial) {
+              if (typeof glowMaterial.size !== 'undefined') {
+                glowMaterial.size = 3.0 * scale;
+              }
+              if (typeof glowMaterial.opacity !== 'undefined') {
+                glowMaterial.opacity = 0.3 * (0.7 + 0.3 * Math.sin(time * 3.0));
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error updating breach points:", err);
       }
       
       requestAnimationFrame(pulse);
