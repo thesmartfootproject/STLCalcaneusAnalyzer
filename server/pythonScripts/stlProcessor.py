@@ -10,6 +10,16 @@ def load_stl(file_path):
     return trimesh.load(file_path)
 
 # Compute the minimum distances between two sets of points
+def normalize_mesh(mesh):
+    # Get bounding box dimensions
+    bbox = mesh.bounds
+    scale = 1.0 / np.max(bbox[1] - bbox[0])
+    
+    # Center and scale vertices
+    center = (bbox[1] + bbox[0]) / 2
+    mesh.vertices = (mesh.vertices - center) * scale
+    return mesh
+
 def compute_distances(points_a, points_b):
     distances = np.linalg.norm(points_a[:, None, :] - points_b[None, :, :], axis=-1)
     min_dist = np.min(distances)
@@ -23,6 +33,10 @@ def process_screws_batch(medial_file, lateral_file, screws_dir, tolerance=0.5):
     
     medial = load_stl(medial_file)
     lateral = load_stl(lateral_file)
+    
+    # Normalize medial and lateral surfaces
+    medial = normalize_mesh(medial)
+    lateral = normalize_mesh(lateral)
 
     medial_points = np.array(medial.vertices)
     lateral_points = np.array(lateral.vertices)
@@ -51,6 +65,7 @@ def process_screws_batch(medial_file, lateral_file, screws_dir, tolerance=0.5):
         
         screw_path = os.path.join(screws_path, screw_file) if os.path.isdir(screws_dir) else screws_dir
         screw = load_stl(screw_path)
+        screw = normalize_mesh(screw)
         screw_points = np.array(screw.vertices)
 
         min_dist_medial, medial_idx = compute_distances(screw_points, medial_points)
