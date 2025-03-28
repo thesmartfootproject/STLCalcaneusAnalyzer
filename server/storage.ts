@@ -30,6 +30,7 @@ export interface IStorage {
   // Processing results
   getResultsBySession(sessionId: string): Promise<ProcessingResult | undefined>;
   saveProcessingResult(result: InsertProcessingResult): Promise<ProcessingResult>;
+  getResultById(id: number): Promise<ProcessingResult | undefined>;
   
   // Settings
   getSettingsForUser(userId: number): Promise<ProcessingSetting | undefined>;
@@ -109,6 +110,10 @@ export class MemStorage implements IStorage {
     return Array.from(this.processingResults.values()).find(
       (result) => result.sessionId === sessionId
     );
+  }
+  
+  async getResultById(id: number): Promise<ProcessingResult | undefined> {
+    return this.processingResults.get(id);
   }
   
   async saveProcessingResult(result: InsertProcessingResult): Promise<ProcessingResult> {

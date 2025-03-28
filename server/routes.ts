@@ -272,6 +272,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get results by ID
+  app.get("/api/results/:id", async (req: Request, res: Response) => {
+    try {
+      const id = req.params.id;
+      
+      // Try to parse as number first
+      const numericId = parseInt(id);
+      if (!isNaN(numericId)) {
+        const result = await storage.getResultById(numericId);
+        if (!result) {
+          return res.status(404).json({ message: "Result not found" });
+        }
+        return res.json(result);
+      }
+      
+      // If not a number, try to get by session ID
+      const result = await storage.getResultsBySession(id);
+      if (!result) {
+        return res.status(404).json({ message: "Result not found" });
+      }
+      
+      res.json(result);
+    } catch (error) {
+      console.error("Error getting result:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
