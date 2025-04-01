@@ -3,8 +3,11 @@ import express from 'express';
 import serverless from 'serverless-http';
 import { registerRoutes } from '../../server/routes';
 
+// Type declarations for serverless-http
+type ServerlessHandler = (event: any, context: any) => Promise<any>;
+
 const app = express();
-let handler: any;
+let handler: ServerlessHandler;
 
 // Initialize routes and handler
 const initializeHandler = async () => {
