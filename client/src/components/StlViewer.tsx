@@ -5,6 +5,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { ScrewResult } from "@shared/schema";
+import { Object3D, Points, Material, BufferGeometry, MeshPhysicalMaterial } from 'three';
 
 interface StlViewerProps {
   sessionId: string;
@@ -337,12 +338,12 @@ const StlViewer = ({
       
       loader.load(
         url,
-        (geometry) => {
+        (geometry: BufferGeometry) => {
           // Compute normals for better lighting
           geometry.computeVertexNormals();
           
           // Create material based on the type of model
-          let material;
+          let material: MeshPhysicalMaterial;
           
           if (key === "medial") {
             // Medial surface - red with medium shininess
@@ -569,19 +570,19 @@ const StlViewer = ({
           const glowHalo = breachPointsRef.current.children[1];
           
           // Update point size for core points
-          if (corePoints.isPoints) {
-            const pointsMaterial = (corePoints as any).material;
-            if (pointsMaterial && typeof pointsMaterial.size !== 'undefined') {
-              pointsMaterial.size = 1.0 * scale;
+          if (corePoints instanceof Points) {
+            const pointsMaterial = corePoints.material as Material;
+            if (pointsMaterial && typeof (pointsMaterial as any).size !== 'undefined') {
+              (pointsMaterial as any).size = 1.0 * scale;
             }
           }
           
           // Update point size and opacity for glow effect
-          if (glowHalo.isPoints) {
-            const glowMaterial = (glowHalo as any).material;
+          if (glowHalo instanceof Points) {
+            const glowMaterial = glowHalo.material as Material;
             if (glowMaterial) {
-              if (typeof glowMaterial.size !== 'undefined') {
-                glowMaterial.size = 3.0 * scale;
+              if (typeof (glowMaterial as any).size !== 'undefined') {
+                (glowMaterial as any).size = 3.0 * scale;
               }
               if (typeof glowMaterial.opacity !== 'undefined') {
                 glowMaterial.opacity = 0.3 * (0.7 + 0.3 * Math.sin(time * 3.0));
