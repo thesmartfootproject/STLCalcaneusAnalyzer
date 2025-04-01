@@ -1,0 +1,27 @@
+[vite] connecting...
+[vite] connected.
+Warning: validateDOMNesting(...): <a> cannot appear as a descendant of &lt;a&gt;.
+    at a
+    at a
+    at https://158c7c41-a800-41e9-bd93-6acdaf379c7c-00-1jtdpxcdedpix.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=3502e785:337:18
+    at div
+    at div
+    at Sidebar (https://158c7c41-a800-41e9-bd93-6acdaf379c7c-00-1jtdpxcdedpix.worf.replit.dev/src/components/Sidebar.tsx:19:20)
+    at div
+    at Layout (https://158c7c41-a800-41e9-bd93-6acdaf379c7c-00-1jtdpxcdedpix.worf.replit.dev/src/components/Layout.tsx:21:19)
+    at QueryClientProvider (https://158c7c41-a800-41e9-bd93-6acdaf379c7c-00-1jtdpxcdedpix.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=3502e785:2805:3)
+    at App (https://158c7c41-a800-41e9-bd93-6acdaf379c7c-00-1jtdpxcdedpix.worf.replit.dev/src/App.tsx?v=lkiJFLL0LkVo4TeQxvoYv:32:37)
+at a
+at a
+at https://158c7c41-a800-41e9-bd93-6acdaf379c7c-00-1jtdpxcdedpix.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=3502e785:337:18
+at div
+at div
+at Sidebar (https://158c7c41-a800-41e9-bd93-6acdaf379c7c-00-1jtdpxcdedpix.worf.replit.dev/src/components/Sidebar.tsx:19:20)
+at div
+at Layout (https://158c7c41-a800-41e9-bd93-6acdaf379c7c-00-1jtdpxcdedpix.worf.replit.dev/src/components/Layout.tsx:21:19)
+at QueryClientProvider (https://158c7c41-a800-41e9-bd93-6acdaf379c7c-00-1jtdpxcdedpix.worf.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=3502e785:2805:3)
+at App (https://158c7c41-a800-41e9-bd93-6acdaf379c7c-00-1jtdpxcdedpix.worf.replit.dev/src/App.tsx?v=lkiJFLL0LkVo4TeQxvoYv:32:37)
+at t.value (https://158c7c41-a800-41e9-bd93-6acdaf379c7c-00-1jtdpxcdedpix.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://158c7c41-a800-41e9-bd93-6acdaf379c7c-00-1jtdpxcdedpix.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://158c7c41-a800-41e9-bd93-6acdaf379c7c-00-1jtdpxcdedpix.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://158c7c41-a800-41e9-bd93-6acdaf379c7c-00-1jtdpxcdedpix.worf.replit.dev/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400

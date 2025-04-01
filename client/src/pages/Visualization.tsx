@@ -53,15 +53,20 @@ const Visualization = ({ sessionId }: VisualizationProps) => {
   
   useEffect(() => {
     if (processingData) {
+      console.log("Visualization: Processing data received:", processingData);
+      
       // Parse results if they're a string
       const parsedResults = typeof processingData.results === 'string' 
         ? JSON.parse(processingData.results) 
         : processingData.results;
       
+      console.log("Visualization: Parsed results:", parsedResults);
+      
       setResults(parsedResults);
       
       // Set the first screw as selected if none is selected
-      if (!selectedScrew && parsedResults.length > 0) {
+      if (!selectedScrew && parsedResults && parsedResults.length > 0) {
+        console.log("Visualization: Setting first screw as selected:", parsedResults[0].fileName);
         setSelectedScrew(parsedResults[0].fileName);
       }
     }

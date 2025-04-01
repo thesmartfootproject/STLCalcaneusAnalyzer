@@ -254,12 +254,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Results not found" });
       }
       
-      const results = JSON.parse(result.results.toString());
+      // Handle different results formats - could be string or already an object
+      let resultsArray;
+      if (typeof result.results === 'string') {
+        try {
+          resultsArray = JSON.parse(result.results);
+        } catch (e) {
+          console.error("Failed to parse results string:", e);
+          return res.status(500).json({ message: "Invalid results data format" });
+        }
+      } else if (Array.isArray(result.results)) {
+        resultsArray = result.results;
+      } else {
+        console.error("Results is not in expected format:", typeof result.results);
+        return res.status(500).json({ message: "Invalid results data format" });
+      }
       
       // Generate CSV content
       let csvContent = "Screw File,Distance to Medial Wall,Distance to Lateral Wall,Breach Status\n";
       
-      for (const row of results) {
+      for (const row of resultsArray) {
         csvContent += `${row.fileName},${row.distanceToMedial},${row.distanceToLateral},${row.breachStatus}\n`;
       }
       
