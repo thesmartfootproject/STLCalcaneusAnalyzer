@@ -1,19 +1,14 @@
-import { Handler } from '@netlify/functions';
+import { Handler, HandlerEvent, HandlerContext, HandlerResponse } from '@netlify/functions';
 import express from 'express';
 import serverless from 'serverless-http';
-import { registerRoutes } from '../../server/routes';
-
-// Type declarations for serverless-http
-type ServerlessHandler = (event: any, context: any) => Promise<any>;
+import { registerRoutes } from '../../../server/routes';
 
 const app = express();
-let handler: ServerlessHandler;
 
 // Initialize routes and handler
 const initializeHandler = async () => {
   try {
     await registerRoutes(app);
-    handler = serverless(app);
   } catch (error) {
     console.error('Error initializing handler:', error);
     throw error;
@@ -23,13 +18,11 @@ const initializeHandler = async () => {
 // Initialize immediately
 initializeHandler();
 
-export const api: Handler = async (event, context) => {
+// Create serverless handler
+const handler = serverless(app);
+
+export const api: Handler = async (event: HandlerEvent, context: HandlerContext): Promise<HandlerResponse> => {
   try {
-    // Ensure handler is initialized
-    if (!handler) {
-      await initializeHandler();
-    }
-    
     // Handle CORS
     if (event.httpMethod === 'OPTIONS') {
       return {
@@ -43,11 +36,11 @@ export const api: Handler = async (event, context) => {
     }
 
     // Add CORS headers to response
-    const response = await handler(event, context);
+    const response = await handler(event, context) as HandlerResponse;
     return {
       ...response,
       headers: {
-        ...response.headers,
+        ...(response.headers || {}),
         'Access-Control-Allow-Origin': '*'
       }
     };
